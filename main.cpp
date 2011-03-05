@@ -1,11 +1,16 @@
 // midiprobe.cpp
 
 #include <iostream>
-#include <cstdlib>
-#include <readline/readline.h>
-#include "RtMidi.h"
+#include "cmds.h"
 
-int main()
+using namespace macmidish;
+
+static void beginmsg() {
+	std::cout << "macmidish, inspired by midish" << std::endl;
+	std::cout << "(c) Matt Kane, RtMidi (c) 2003-2011 Gary P. Scavone" << std::endl;
+}
+	
+int main(int argc, char** argv)
 {
 	// if no input port num specified, scan input ports and select
 	// if no output port num specified, scan output ports and select
@@ -15,7 +20,11 @@ int main()
 	// l (logfile): set log file, save all commands and results there
 	// o (bytes): send message
 	// io (bytes): send message and expect response
-	// fo (filename) (bytes): send message and expect response, save response to file
-	//
+	// fo (timeout) (filename) (bytes): send message and expect response, save response to file
+	// q: quit! (also EOF)
+	beginmsg();
+	PortSelector ps(argc, argv);
+	CmdParser cmd(ps.inPort(), ps.outPort());
+	cmd.startRepl();
 	return 0;
 }

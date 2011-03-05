@@ -13,6 +13,7 @@
 		FC1BC0611321D88600BB3560 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0601321D88600BB3560 /* CoreAudio.framework */; };
 		FC1BC0631321D88600BB3560 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0621321D88600BB3560 /* CoreFoundation.framework */; };
 		FC1BC0651321D88600BB3560 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0641321D88600BB3560 /* CoreMIDI.framework */; };
+		FC1BC0711321DC7200BB3560 /* cmds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC1BC0701321DC7200BB3560 /* cmds.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +39,8 @@
 		FC1BC0601321D88600BB3560 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		FC1BC0621321D88600BB3560 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FC1BC0641321D88600BB3560 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		FC1BC06F1321DC7200BB3560 /* cmds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmds.h; sourceTree = "<group>"; };
+		FC1BC0701321DC7200BB3560 /* cmds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cmds.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,8 @@
 				FC1BC04D1321D79F00BB3560 /* RtMidi.cpp */,
 				FC1BC04E1321D79F00BB3560 /* RtMidi.h */,
 				08FB7796FE84155DC02AAC07 /* main.cpp */,
+				FC1BC06F1321DC7200BB3560 /* cmds.h */,
+				FC1BC0701321DC7200BB3560 /* cmds.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -139,6 +144,7 @@
 			files = (
 				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
 				FC1BC04F1321D79F00BB3560 /* RtMidi.cpp in Sources */,
+				FC1BC0711321DC7200BB3560 /* cmds.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
