@@ -19,11 +19,13 @@ namespace macmidish {
 		PortSelector(int argc, char ** argv) : _argc(argc), _argv(argv), _ready(false) {}
 		int inPort();
 		int outPort();
-	private:
 		void scanSelect();
+	private:
+		void parseArgs();
 		bool _ready;
 		int _argc;
 		char **_argv;
+		unsigned _inPort, _outPort;
 	};
 		
 	
@@ -33,6 +35,7 @@ namespace macmidish {
 			_inPort(inPort), _outPort(outPort), _portsOpen(false), logfile(NULL) {}
 		void startRepl();
 		void setLogfile(const std::string &);
+		friend class Cmd;
 	private:
 		char * issueprompt();
 		void parsecmd(char *);
@@ -52,7 +55,7 @@ namespace macmidish {
 	class Cmd {
 	public:
 		static Cmd * newCmd(const char *);
-		std::string execute(unsigned int inPort, unsigned int outPort);
+		std::string execute(CmdParser & parser);
 		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort) = 0;
 		virtual ~Cmd() {}
 		// return string to put into readline history
@@ -67,48 +70,51 @@ namespace macmidish {
 
 	class SetInputMode : public Cmd {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SetInput();
 	};
 
 	class SendFile : public Cmd {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SendFile();
 	private:
 	};
 
 	class SetLogfile : public Cmd {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SetLogfile();
 	};
 	
 	class SendMsg : public Cmd {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SendMsg();
 	};
 	
 	class SendMsgWithResponse : public SendMsg {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SendMsgWithResponse();
 	};
 	
 	class SendMsgWithResponseToFile : public SendMsgWithResponse {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
 		virtual ~SendMsgWithResponseToFile();
 	};
 	
 	class Quit : public Cmd {
 	public:
-		virtual std::string execute(unsigned int inPort, unsigned int outPort);
-		virtual ~SendMsgWithResponseToFile();
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
+		virtual ~Quit();
 	};
 	
-	
+	class PortChange : public Cmd {
+		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
+		virtual ~PortChange();
+	};
 }
 
 #endif //H2P_MMS_CMDS
