@@ -19,30 +19,13 @@ namespace macmidish {
 		PortSelector(int argc, char ** argv) : _argc(argc), _argv(argv), _ready(false) {}
 		int inPort();
 		int outPort();
-		void scanSelect();
+		void scanSelect(bool inPort = true, bool outPort = true);
 	private:
 		void parseArgs();
 		bool _ready;
 		int _argc;
 		char **_argv;
 		unsigned _inPort, _outPort;
-	};
-		
-	
-	class CmdParser {
-	public:
-		CmdParser(unsigned int inPort, unsigned int outPort):
-			_inPort(inPort), _outPort(outPort), _portsOpen(false), logfile(NULL) {}
-		void startRepl();
-		void setLogfile(const std::string &);
-		friend class Cmd;
-	private:
-		char * issueprompt();
-		void parsecmd(char *);
-		bool _portsOpen;
-		std::string *logfile;
-		unsigned int _inPort;
-		unsigned int _outPort;
 	};
 	
 	enum ParseMode {
@@ -51,16 +34,37 @@ namespace macmidish {
 		DECIMAL,
 		OCTAL
 	};
+		
+	class CmdParser {
+	public:
+		CmdParser(unsigned int inPort, unsigned int outPort):
+			_inPort(inPort), _outPort(outPort), _portsOpen(false), _logfile(NULL), _quit(false),
+			_parseMode(HEX) {}
+		void startRepl();
+		void setLogfile(const std::string &);
+		friend class Cmd;
+	private:
+		void quit();
+		char * issueprompt();
+		void parsecmd(char *);
+		bool _portsOpen;
+		std::string *_logfile;
+		bool _quit;
+		unsigned int _inPort;
+		unsigned int _outPort;
+		ParseMode _parseMode;
+	};
 	
 	class Cmd {
 	public:
 		static Cmd * newCmd(const char *);
 		std::string execute(CmdParser & parser);
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort) = 0;
+		virtual std::string executeHelper(CmdParser & parser) = 0;
+		virtual std::string logmsg() = 0;
 		virtual ~Cmd() {}
 		// return string to put into readline history
 	private:
-		Cmd();
+		Cmd(const char *);
 		void asHex(const char *);
 		void asDecimal(const char *);
 		void asOctal(const char *);
@@ -70,50 +74,70 @@ namespace macmidish {
 
 	class SetInputMode : public Cmd {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
-		virtual ~SetInput();
+		virtual std::string executeHelper(CmdParser & parser);
+		SetInputMode(const char *);
+	private:
+		ParseMode _parseMode;
 	};
 
 	class SendFile : public Cmd {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
+		SendFile(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
 		virtual ~SendFile();
 	private:
+		const char * filename;
 	};
 
 	class SetLogfile : public Cmd {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
+		SetLogfile(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
 		virtual ~SetLogfile();
+	private:
+		const char * line;
 	};
 	
 	class SendMsg : public Cmd {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
-		virtual ~SendMsg();
+		SendMsg(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
 	};
 	
 	class SendMsgWithResponse : public SendMsg {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
-		virtual ~SendMsgWithResponse();
+		SendMsgWithResponse(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
+	private:
+		unsigned int timeout;
 	};
 	
 	class SendMsgWithResponseToFile : public SendMsgWithResponse {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
+		SendMsgWithResponse(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
 		virtual ~SendMsgWithResponseToFile();
+	private:
+		unsigned int timeout;
+		const char * filename;
 	};
 	
 	class Quit : public Cmd {
 	public:
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
-		virtual ~Quit();
+		virtual std::string executeHelper(CmdParser & parser);
 	};
 	
 	class PortChange : public Cmd {
-		virtual std::string executeHelper(unsigned int inPort, unsigned int outPort);
-		virtual ~PortChange();
+	public:
+		virtual std::string executeHelper(CmdParser & parser);
+	};
+	
+	class UnrecognizedCmd : public Cmd {
+	public:
+		UnrecognizedCmd(const char *);
+		virtual std::string executeHelper(CmdParser & parser);
+	private:
+		const char* cmd;
 	};
 }
 

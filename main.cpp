@@ -19,8 +19,8 @@ int main(int argc, char** argv)
 	// s (filename): send sysex file
 	// l (logfile): set log file, save all commands and results there
 	// o (bytes): send message
-	// p (num): re-select port
-	// io (bytes): send message and expect response
+	// p : re-select ports
+	// io (timeout) (bytes): send message and expect response
 	// fo (timeout) (filename) (bytes): send message and expect response, save response to file
 	// q: quit! (also EOF)
 	beginmsg();
