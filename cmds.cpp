@@ -9,9 +9,12 @@
 
 #include "cmds.h"
 #include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <stdlib.h>
 #include <cstring>
+#include <cctype>
+#include <cassert>
 
 using namespace macmidish;
 
@@ -115,6 +118,18 @@ void CmdParser::startRepl() {
 	}
 }
 
+void CmdParser::openlog() {
+	if (_logfile == NULL || _logfilehandle != NULL) {
+		return;
+	}
+	
+	_logfilehandle = fopen(_logfile->c_str(), "a");
+	if (!_logfilehandle) {
+		std::cerr << "couldn't open logfile: " << errno << std::endl;
+		throw std::exception();
+	}
+}
+
 char * CmdParser::issueprompt() {
 	char * resp = NULL;
 	do {
@@ -124,15 +139,16 @@ char * CmdParser::issueprompt() {
 }
 
 void CmdParser::parsecmd(char * cmd) {
-	Cmd::newCmd(cmd)->execute(*this);
+	Cmd * c = Cmd::newCmd(cmd);
+	c->execute(*this);
+	delete c;
 }
 
 Cmd * Cmd::newCmd(const char * msg) {
 	const char * orig = msg;
 	eatwhitespace(&msg);
-	switch (*msg) {
+	switch (*(msg++)) {
 		case 'i':
-			++msg;
 			if (isspace(*msg)) {
 				eatwhitespace(&msg);
 				return new SetInputMode(msg);
@@ -142,11 +158,122 @@ Cmd * Cmd::newCmd(const char * msg) {
 			}
 			break;
 		case 's':
-			++msg;
 			if (isspace(*msg)) {
 				eatwhitespace(&msg);
 				return new SendFile(msg);
 			} 
-			
-				return new UnrecognizedCmd(orig);
+			break;
+		case 'l':
+			if (isspace(*msg)) {
+				eatwhitespace(&msg);
+				return new SetLogfile(msg);
+			}
+			break;
+		case 'o':
+			if (isspace(*msg)) {
+				eatwhitespace(&msg);
+				return new SendMsg(msg);
+			}
+			break;
+		case 'p':
+			if (isspace(*msg)) {
+				eatwhitespace(&msg);
+				return new PortChange;
+			}
+			break;
+		case 'f':
+			if (*msg == 'o') {
+				++msg;
+				eatwhitespace(&msg);
+				return new SendMsgWithResponseToFile(msg);
+			}
+			break;
+		case 'q':
+			if (isspace(*msg)) {
+				eatwhitespace(&msg);
+				return new Quit;
+			}
+	}
+	return new UnrecognizedCmd(orig);
+}
+
+std::string Cmd::execute(CmdParser & parser) {
+	executeHelper();
+	if (parser._logfile != NULL) {
+		parser.openlog();
+		fwrite(this->logmsg().c_str(), this->logmsg().size()+1, 1, parser._logfilehandle);
+	}
+}
+
+void Cmd::asHex(const char *str) {
+	parseInts(str, 16);
+}
+
+void Cmd::asOctal(const char *str) {
+	parseInts(str, 8);
+}
+
+void Cmd::asDecimal(const char *str) {
+	parseInts(str, 10);
+}
+
+void Cmd::asAscii(const char * str) {
+	while (*str) {
+		_msg.push_back(*str);
+		++str;
+	}
+}
+
+void Cmd::parseInts(const char *str, int base) {
+	char * end = NULL;
+	while (*str) {
+		long answer = strtol(str, &end, base);
+		if (answer & 0x7f != answer) { // too big
+			std::cout << "bad input string! " << answer << " was not <= 127 and >= 0." << std::endl;
+			return;
+		} else if (answer == 0 && errno == EINVAL) {
+			std::cout << "bad input string! " << str << " had a bad input character!" << std::endl;
+			return;
+		}
+		_msg.push_back(static_cast<unsigned char>(answer));
+		if (!isspace(*end)) {
+			std::cout << "bad input string! skipping " << end << std::endl;
+			return;
+		}	
+		str = end;
+	}
+}
+
+void SetInputMode::SetInputMode(const char * str) : _set(false) {
+	eatwhitespace(&str);
+	parseCmd(str);
+}
+
+void SetInputMode::parseCmd(const char * str) {
+	switch (str[0]) {
+		case 'h':
+			mode = HEX;
+			_set = (str[1] == 0);
+			break;
+		case 'i':
+			mode = DECIMAL;
+			_set = (str[1] == 0);
+			break;
+		case 'o':
+			mode = OCTAL;
+			_set = (str[1] == 0);
+			break;
+		case 'a':
+			mode = ASCII;
+			_set = (str[1] == 0);
+			break;
+	}
+	return mode;
+}	
+void SetInputMode::executeHelper(CmdParser & parser) {
+	if (!_set) {
+		char * msg = readline("Mode? h - hex, i - ints, o - octal, a - ascii >");
+		
+	}
+	parser.
 }

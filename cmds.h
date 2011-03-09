@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 namespace macmidish {
 	class PortSelector {
@@ -44,11 +45,12 @@ namespace macmidish {
 		void setLogfile(const std::string &);
 		friend class Cmd;
 	private:
-		void quit();
+		void openlog();
 		char * issueprompt();
 		void parsecmd(char *);
 		bool _portsOpen;
 		std::string *_logfile;
+		FILE *_logfilehandle;
 		bool _quit;
 		unsigned int _inPort;
 		unsigned int _outPort;
@@ -63,18 +65,21 @@ namespace macmidish {
 		virtual std::string logmsg() = 0;
 		virtual ~Cmd() {}
 		// return string to put into readline history
-	private:
-		Cmd(const char *);
+	protected:
 		void asHex(const char *);
 		void asDecimal(const char *);
 		void asOctal(const char *);
 		void asAscii(const char *);
-		std::vector<unsigned char> _msg;
+		std::deque<unsigned char> _msg;
+		bool _set;
+	private:
+		void parseInts(const char *, int);
 	};
 
 	class SetInputMode : public Cmd {
 	public:
 		virtual std::string executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
 		SetInputMode(const char *);
 	private:
 		ParseMode _parseMode;
@@ -84,6 +89,7 @@ namespace macmidish {
 	public:
 		SendFile(const char *);
 		virtual std::string executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
 		virtual ~SendFile();
 	private:
 		const char * filename;
@@ -93,6 +99,7 @@ namespace macmidish {
 	public:
 		SetLogfile(const char *);
 		virtual std::string executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
 		virtual ~SetLogfile();
 	private:
 		const char * line;

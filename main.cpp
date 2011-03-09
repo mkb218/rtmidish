@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 	// if no input port num specified, scan input ports and select
 	// if no output port num specified, scan output ports and select
 	// cmds
-	// i (h): input mode: hex, int, ascii
+	// i (h): input mode: (h)ex, (i)nt, (a)scii, (o)ctal
 	// s (filename): send sysex file
 	// l (logfile): set log file, save all commands and results there
 	// o (bytes): send message
