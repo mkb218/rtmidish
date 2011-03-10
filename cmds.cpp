@@ -8,6 +8,7 @@
  */
 
 #include "cmds.h"
+#include "RtMidi.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -15,6 +16,8 @@
 #include <cstring>
 #include <cctype>
 #include <cassert>
+#include <readline/readline.h>
+#include <errno.h>
 
 using namespace macmidish;
 
@@ -26,7 +29,7 @@ namespace macmidish {
 RtMidiOut midiout;
 RtMidiIn midiin;
 
-static void eatwhitespace(char ** msg) {
+static void eatwhitespace(const char ** msg) {
 	while (isspace(**msg)) {
 		++(*msg);
 	}
@@ -38,17 +41,20 @@ void PortSelector::scanSelect(bool inPort, bool outPort) {
 	unsigned int max = std::max(inPorts, outPorts);
 	std::cout << "Please select the MIDI port you want to communicate with:" << std::endl;
 	for (unsigned int i = 0; i <= max; ++i) {
-		std::cout << i << ".) " << (i<inPorts)?(midiin.getPortName(i)):("(output only)")
-			<< "/" << (o<outPorts)?(midiout.getPortName(i)):("(input only)");
+		std::cout << i;
+		std::cout << ".) ";
+		std::cout << (i<inPorts)?(midiin.getPortName(i)):("(output only)");
+		std::cout << "/" ;
+		std::cout << (i<outPorts)?(midiout.getPortName(i)):("(input only)");
 	}
 	
 	char *resp = NULL;
+	std::istringstream is;
 	if (inPort) {
 		do {
 			resp = readline("input>");
 		} while (!resp || !(*resp));
 		
-		std::istringstream is;
 		is.str(resp);
 		is >> _inPort;
 		free(resp);
@@ -73,14 +79,14 @@ void PortSelector::parseArgs() {
 	bool outPort = true;
 	if (!_ready) {
 		for (int i = 1; i < _argc; ++i) {
-			if (strncmp(_argv[i], "-in", 4) == 0 && i + 1 < argc) {
+			if (strncmp(_argv[i], "-in", 4) == 0 && i + 1 < _argc) {
 				++i;
 				inPort = false;
-				_inPort = strtol(argv[i], NULL, 10);
-			} else if (strncmp(_argv[i], "-out", 4) == 0 && i + 1 < argc) {
+				_inPort = strtol(_argv[i], NULL, 10);
+			} else if (strncmp(_argv[i], "-out", 4) == 0 && i + 1 < _argc) {
 				++i;
 				outPort = false;
-				_outPort = strtol(argv[i], NULL, 10);
+				_outPort = strtol(_argv[i], NULL, 10);
 			}
 		}
 	}
@@ -90,14 +96,14 @@ void PortSelector::parseArgs() {
 	_ready = true;
 }
 
-void PortSelector::inPort() {
+int PortSelector::inPort() {
 	if (!_ready) {
 		parseArgs();
 	}
 	return _inPort;
 }
 
-void PortSelector::outPort() {
+int PortSelector::outPort() {
 	if (!_ready) {
 		parseArgs();
 	}
@@ -109,7 +115,7 @@ void CmdParser::startRepl() {
 		char * cmd = issueprompt();
 		if (cmd) {
 			if (*cmd) {
-				parsecmd(foo);
+				parsecmd(cmd);
 				add_history(cmd);
 			}
 			
@@ -197,11 +203,11 @@ Cmd * Cmd::newCmd(const char * msg) {
 	return new UnrecognizedCmd(orig);
 }
 
-std::string Cmd::execute(CmdParser & parser) {
-	executeHelper();
-	if (parser._logfile != NULL) {
+void Cmd::execute(CmdParser & parser) {
+	executeHelper(parser);
+	if (parser.hasLogfile()) {
 		parser.openlog();
-		fwrite(this->logmsg().c_str(), this->logmsg().size()+1, 1, parser._logfilehandle);
+		fwrite(this->logmsg().c_str(), this->logmsg().size()+1, 1, parser.getLogFilehandle());
 	}
 }
 
@@ -244,7 +250,8 @@ void Cmd::parseInts(const char *str, int base) {
 	}
 }
 
-void SetInputMode::SetInputMode(const char * str) : _set(false) {
+SetInputMode::SetInputMode(const char * str) {
+	_set = false;
 	eatwhitespace(&str);
 	parseCmd(str);
 }
@@ -252,28 +259,91 @@ void SetInputMode::SetInputMode(const char * str) : _set(false) {
 void SetInputMode::parseCmd(const char * str) {
 	switch (str[0]) {
 		case 'h':
-			mode = HEX;
+			_parseMode = HEX;
 			_set = (str[1] == 0);
 			break;
 		case 'i':
-			mode = DECIMAL;
+			_parseMode = DECIMAL;
 			_set = (str[1] == 0);
 			break;
 		case 'o':
-			mode = OCTAL;
+			_parseMode = OCTAL;
 			_set = (str[1] == 0);
 			break;
 		case 'a':
-			mode = ASCII;
+			_parseMode = ASCII;
 			_set = (str[1] == 0);
 			break;
 	}
-	return mode;
 }	
+
 void SetInputMode::executeHelper(CmdParser & parser) {
-	if (!_set) {
+	while (!_set) {
 		char * msg = readline("Mode? h - hex, i - ints, o - octal, a - ascii >");
-		
+		parseCmd(msg);
 	}
-	parser.
+	parser.setParseMode(_parseMode);
+}
+
+std::string SetInputMode::logmsg() {
+	const char *names[] = {"ascii", "hex", "decimal", "octal"};
+	return (std::string("Set input mode to ") + names[(int)_parseMode] + ".");
+}
+
+SendFile::SendFile(const char * str):filename(NULL) {
+	size_t len = strlen(str) + 1;
+	filename = new char[len];
+	strncpy(filename, str, len);
+}
+						
+SendFile::~SendFile() {
+	delete [] filename;
+}				
+
+void SendFile::executeHelper(CmdParser & parser) {
+	FILE * in = fopen(filename, "r");
+	if (in == NULL) {
+		throw std::exception();
+	}
+	
+	size_t read = 0;
+	char buffer[1024];
+	while (!feof(in)) {
+		read = fread(buffer, 1, 1024, in);
+		if (read < 1024) {
+			if (ferror(in)) {
+				fclose(in);
+				throw std::exception();
+			}
+		}
+		for ( int i = 0; i < 1024; ++i) {
+			_msg.push_back(buffer[i]);
+		}
+	}
+}
+
+std::string SendFile::logmsg() {
+	return (std::string("Sent file to device: ") + filename);
+}
+
+SetLogfile::SetLogfile(const char * msg) : line(NULL) {
+	size_t len = strlen(msg) + 1;
+	line = new char[len];
+	strncpy(line, msg, len);
+}
+
+SetLogfile::~SetLogfile(){
+	delete [] line;
+}
+
+void SetLogfile::executeHelper(CmdParser & parser) {
+	parser.setLogfile(std::string(line));
+}
+
+std::string SetLogfile::logmsg() {
+	return (std::string("Set log file to ") + line);
+}
+
+SendMsg::SendMsg(const char * msg) {
+	
 }
