@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
-		8DD76F6A0486A84900D96B5E /* macmidish.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* macmidish.1 */; };
+		8DD76F6A0486A84900D96B5E /* rtmidish.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* rtmidish.1 */; };
 		FC1BC04F1321D79F00BB3560 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC1BC04D1321D79F00BB3560 /* RtMidi.cpp */; };
 		FC1BC0611321D88600BB3560 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0601321D88600BB3560 /* CoreAudio.framework */; };
 		FC1BC0631321D88600BB3560 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0621321D88600BB3560 /* CoreFoundation.framework */; };
@@ -23,7 +23,7 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				8DD76F6A0486A84900D96B5E /* macmidish.1 in CopyFiles */,
+				8DD76F6A0486A84900D96B5E /* rtmidish.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -31,8 +31,8 @@
 
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		8DD76F6C0486A84900D96B5E /* macmidish */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = macmidish; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6859E8B029090EE04C91782 /* macmidish.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = macmidish.1; sourceTree = "<group>"; };
+		8DD76F6C0486A84900D96B5E /* rtmidish */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rtmidish; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6859E8B029090EE04C91782 /* rtmidish.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = rtmidish.1; sourceTree = "<group>"; };
 		FC1BC04C1321D79F00BB3560 /* RtError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtError.h; sourceTree = "<group>"; };
 		FC1BC04D1321D79F00BB3560 /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtMidi.cpp; sourceTree = "<group>"; };
 		FC1BC04E1321D79F00BB3560 /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtMidi.h; sourceTree = "<group>"; };
@@ -57,7 +57,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		08FB7794FE84155DC02AAC07 /* macmidish */ = {
+		08FB7794FE84155DC02AAC07 /* rtmidish */ = {
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
@@ -67,7 +67,7 @@
 				FC1BC0621321D88600BB3560 /* CoreFoundation.framework */,
 				FC1BC0641321D88600BB3560 /* CoreMIDI.framework */,
 			);
-			name = macmidish;
+			name = rtmidish;
 			sourceTree = "<group>";
 		};
 		08FB7795FE84155DC02AAC07 /* Source */ = {
@@ -86,7 +86,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DD76F6C0486A84900D96B5E /* macmidish */,
+				8DD76F6C0486A84900D96B5E /* rtmidish */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -94,7 +94,7 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
-				C6859E8B029090EE04C91782 /* macmidish.1 */,
+				C6859E8B029090EE04C91782 /* rtmidish.1 */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
@@ -102,9 +102,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F620486A84900D96B5E /* macmidish */ = {
+		8DD76F620486A84900D96B5E /* rtmidish */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "macmidish" */;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "rtmidish" */;
 			buildPhases = (
 				8DD76F640486A84900D96B5E /* Sources */,
 				8DD76F660486A84900D96B5E /* Frameworks */,
@@ -114,10 +114,10 @@
 			);
 			dependencies = (
 			);
-			name = macmidish;
+			name = rtmidish;
 			productInstallPath = "$(HOME)/bin";
-			productName = macmidish;
-			productReference = 8DD76F6C0486A84900D96B5E /* macmidish */;
+			productName = rtmidish;
+			productReference = 8DD76F6C0486A84900D96B5E /* rtmidish */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -125,14 +125,14 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "macmidish" */;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "rtmidish" */;
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
-			mainGroup = 08FB7794FE84155DC02AAC07 /* macmidish */;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* rtmidish */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DD76F620486A84900D96B5E /* macmidish */,
+				8DD76F620486A84900D96B5E /* rtmidish */,
 			);
 		};
 /* End PBXProject section */
@@ -162,7 +162,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-D__MACOSX_CORE__";
-				PRODUCT_NAME = macmidish;
+				PRODUCT_NAME = rtmidish;
 				SDKROOT = macosx10.5;
 			};
 			name = Debug;
@@ -174,7 +174,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = macmidish;
+				PRODUCT_NAME = rtmidish;
 			};
 			name = Release;
 		};
@@ -207,7 +207,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "macmidish" */ = {
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "rtmidish" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
@@ -216,7 +216,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "macmidish" */ = {
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "rtmidish" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
