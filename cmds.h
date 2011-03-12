@@ -76,7 +76,8 @@ namespace macmidish {
 		void asDecimal(const char *);
 		void asOctal(const char *);
 		void asAscii(const char *);
-		std::deque<unsigned char> _msg;
+		Cmd() : _set(false) {}
+		std::vector<unsigned char> _msg;
 		bool _set;
 	private:
 		void parseInts(const char *, int);
@@ -116,19 +117,24 @@ namespace macmidish {
 	public:
 		SendMsg(const char *);
 		virtual void executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
+	protected:
+		SendMsg():Cmd(){}
 	};
 	
 	class SendMsgWithResponse : public SendMsg {
 	public:
 		SendMsgWithResponse(const char *);
 		virtual void executeHelper(CmdParser & parser);
+	protected:
+		void helperHelper();
 	private:
 		unsigned int timeout;
 	};
 	
 	class SendMsgWithResponseToFile : public SendMsgWithResponse {
 	public:
-		SendMsgWithResponse(const char *);
+		SendMsgWithResponseToFile(const char *);
 		virtual void executeHelper(CmdParser & parser);
 		virtual ~SendMsgWithResponseToFile();
 	private:

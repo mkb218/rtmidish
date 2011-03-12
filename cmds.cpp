@@ -18,6 +18,7 @@
 #include <cassert>
 #include <readline/readline.h>
 #include <errno.h>
+#include <iomanip>
 
 using namespace macmidish;
 
@@ -148,6 +149,10 @@ void CmdParser::parsecmd(char * cmd) {
 	Cmd * c = Cmd::newCmd(cmd);
 	c->execute(*this);
 	delete c;
+}
+
+void Cmd::sendMsg() {
+	midiout.sendMessage(&_msg);
 }
 
 Cmd * Cmd::newCmd(const char * msg) {
@@ -345,5 +350,40 @@ std::string SetLogfile::logmsg() {
 }
 
 SendMsg::SendMsg(const char * msg) {
-	
+	parseMsg(msg);
+}
+
+void SendMsg::executeHelper(CmdParser & parser) {
+	sendMsg();
+}
+
+SendMsgWithResponse::SendMsgWithResponse(const char * msg) {
+	char *end = NULL;
+	timeout = strtol(msg, &end, 10);
+	eatwhitespace((const char **)&end);
+	parseMsg(end);
+}
+
+void SendMsgWithResponse::helperHelper() {
+	sendMsg();
+	_msg.erase(_msg.begin(), _msg.end());
+	static bool ready = false;
+	if (!ready) {
+		midiin.ignoreTypes(false, false, false);
+	}
+	midiin.getMessage(&_msg);
+}
+
+void SendMsgWithResponse::executeHelper() {
+	helperHelper();
+	size_t count = 0;
+	for (std::vector<unsigned char>::iterator it = _msg.begin(); it < _msg.end(); ++it) {
+		std::cout << std::hex << std::setw(2) << *it;
+		if (++count >= 8) {
+			std::cout << std::endl;
+			count = 0;
+		} else {
+			std::cout << " ";
+		}
+	}
 }
