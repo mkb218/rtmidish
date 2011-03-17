@@ -27,11 +27,19 @@ namespace macmidish {
 	static RtMidiIn midiin;
 }
 
-RtMidiOut midiout;
-RtMidiIn midiin;
+//RtMidiOut midiout;
+//RtMidiIn midiin;
 
 static void eatwhitespace(const char ** msg) {
 	while (isspace(**msg)) {
+		++(*msg);
+	}
+}
+
+static void findunescapedws(const char ** msg) {
+	bool lastbs = false;
+	while (!isspace(**msg) || lastbs) {
+		lastbs = (**msg == '\\');
 		++(*msg);
 	}
 }
@@ -97,18 +105,27 @@ void PortSelector::parseArgs() {
 	_ready = true;
 }
 
-int PortSelector::inPort() {
+unsigned int PortSelector::inPort() {
 	if (!_ready) {
 		parseArgs();
 	}
 	return _inPort;
 }
 
-int PortSelector::outPort() {
+unsigned int PortSelector::outPort() {
 	if (!_ready) {
 		parseArgs();
 	}
 	return _outPort;
+}
+
+void CmdParser::openPorts() {
+	midiin.openPort(_inPort);
+	midiout.openPort(_outPort);
+}
+
+void CmdParser::closePorts() {
+	// noop for now
 }
 
 void CmdParser::startRepl() {
@@ -146,7 +163,7 @@ char * CmdParser::issueprompt() {
 }
 
 void CmdParser::parsecmd(char * cmd) {
-	Cmd * c = Cmd::newCmd(cmd);
+	Cmd * c = Cmd::newCmd(_parseMode, cmd);
 	c->execute(*this);
 	delete c;
 }
@@ -155,7 +172,25 @@ void Cmd::sendMsg() {
 	midiout.sendMessage(&_msg);
 }
 
-Cmd * Cmd::newCmd(const char * msg) {
+void Cmd::parseMsg(ParseMode mode, const char * msg) {
+	switch (mode) {
+		case ASCII:
+			asAscii(msg);
+			break;
+		case HEX:
+			asHex(msg);
+			break;
+		case DECIMAL:
+			asDecimal(msg);
+			break;
+		case OCTAL:
+			asOctal(msg);
+			break;
+	}
+}
+	
+
+Cmd * Cmd::newCmd(ParseMode mode, const char * msg) {
 	const char * orig = msg;
 	eatwhitespace(&msg);
 	switch (*(msg++)) {
@@ -165,7 +200,7 @@ Cmd * Cmd::newCmd(const char * msg) {
 				return new SetInputMode(msg);
 			} else if (*msg == 'o') { 
 				eatwhitespace(&msg);
-				return new SendMsgWithResponse(msg);
+				return new SendMsgWithResponse(mode, msg);
 			}
 			break;
 		case 's':
@@ -183,7 +218,7 @@ Cmd * Cmd::newCmd(const char * msg) {
 		case 'o':
 			if (isspace(*msg)) {
 				eatwhitespace(&msg);
-				return new SendMsg(msg);
+				return new SendMsg(mode, msg);
 			}
 			break;
 		case 'p':
@@ -196,7 +231,7 @@ Cmd * Cmd::newCmd(const char * msg) {
 			if (*msg == 'o') {
 				++msg;
 				eatwhitespace(&msg);
-				return new SendMsgWithResponseToFile(msg);
+				return new SendMsgWithResponseToFile(mode, msg);
 			}
 			break;
 		case 'q':
@@ -349,19 +384,23 @@ std::string SetLogfile::logmsg() {
 	return (std::string("Set log file to ") + line);
 }
 
-SendMsg::SendMsg(const char * msg) {
-	parseMsg(msg);
+SendMsg::SendMsg(ParseMode mode, const char * msg) {
+	parseMsg(mode, msg);
 }
 
 void SendMsg::executeHelper(CmdParser & parser) {
 	sendMsg();
 }
 
-SendMsgWithResponse::SendMsgWithResponse(const char * msg) {
+std::string SendMsg::logmsg() {
+	return std::string("sent msg");
+}
+
+SendMsgWithResponse::SendMsgWithResponse(ParseMode mode, const char * msg) {
 	char *end = NULL;
 	timeout = strtol(msg, &end, 10);
 	eatwhitespace((const char **)&end);
-	parseMsg(end);
+	parseMsg(mode, end);
 }
 
 void SendMsgWithResponse::helperHelper() {
@@ -374,7 +413,7 @@ void SendMsgWithResponse::helperHelper() {
 	midiin.getMessage(&_msg);
 }
 
-void SendMsgWithResponse::executeHelper() {
+void SendMsgWithResponse::executeHelper(CmdParser & parser) {
 	helperHelper();
 	size_t count = 0;
 	for (std::vector<unsigned char>::iterator it = _msg.begin(); it < _msg.end(); ++it) {
@@ -386,4 +425,53 @@ void SendMsgWithResponse::executeHelper() {
 			std::cout << " ";
 		}
 	}
+}
+
+SendMsgWithResponseToFile::SendMsgWithResponseToFile(ParseMode mode, const char * msg):
+	SendMsgWithResponse() {
+	char *end = NULL;
+	timeout = strtol(msg, &end, 10);
+	eatwhitespace((const char **)&end);
+	const char **filenameend = (const char **)&end;
+	findunescapedws(filenameend);
+	filename = std::string(end, *filenameend-end);
+}
+
+void SendMsgWithResponseToFile::executeHelper(CmdParser & parser) {
+	helperHelper();
+	FILE *out = fopen(filename.c_str(), "w");
+	std::vector<unsigned char>::iterator it = _msg.begin();
+	fwrite(&(*it), 1, _msg.size(), out);
+	fclose(out);
+}
+
+void Quit::executeHelper(CmdParser & parser) {
+	parser.quit();
+}
+
+std::string Quit::logmsg() {
+	return "quitting";
+}
+
+std::string PortChange::logmsg() {
+	return "changed ports";
+}
+
+void PortChange::executeHelper(CmdParser & parser) {
+	PortSelector ps(0, NULL);
+	parser.closePorts();
+	parser.setInPort(ps.inPort());
+	parser.setOutPort(ps.outPort());
+	parser.openPorts();
+}
+
+UnrecognizedCmd::UnrecognizedCmd(const char * msg):cmd(msg) {
+}
+
+std::string UnrecognizedCmd::logmsg() {
+	return std::string("Unrecognized command: ") + cmd;
+}
+
+void UnrecognizedCmd::executeHelper(CmdParser & parser) {
+	std::cout << logmsg() << std::endl;
 }

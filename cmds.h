@@ -18,8 +18,8 @@ namespace macmidish {
 	class PortSelector {
 	public:
 		PortSelector(int argc, char ** argv) : _argc(argc), _argv(argv), _ready(false) {}
-		int inPort();
-		int outPort();
+		unsigned int inPort();
+		unsigned int outPort();
 		void scanSelect(bool inPort = true, bool outPort = true);
 	private:
 		void parseArgs();
@@ -40,15 +40,20 @@ namespace macmidish {
 	public:
 		CmdParser(unsigned int inPort, unsigned int outPort):
 			_inPort(inPort), _outPort(outPort), _portsOpen(false), _logfile(NULL), _quit(false),
-			_parseMode(HEX) {}
+		_parseMode(HEX) { openPorts(); }
 		~CmdParser() { delete _logfile; if (_logfilehandle) { fclose(_logfilehandle); } }
 		void startRepl();
-		void setLogfile(const std::string &);
+		void setLogfile(const std::string & f) {delete _logfile; _logfile = new std::string(f);}
 		std::string getLogfile();
 		bool hasLogfile() { return (_logfile != NULL); }
 		void setParseMode(ParseMode mode) { _parseMode = mode; }
 		void openlog();
 		FILE * getLogFilehandle() { return _logfilehandle; }
+		void quit() { _quit = true; }
+		void setInPort(unsigned int inPort) { _inPort = inPort; }
+		void setOutPort(unsigned int outPort) { _outPort = outPort; }
+		void openPorts();
+		void closePorts();
 	private:
 		char * issueprompt();
 		void parsecmd(char *);
@@ -63,7 +68,7 @@ namespace macmidish {
 	
 	class Cmd {
 	public:
-		static Cmd * newCmd(const char *);
+		static Cmd * newCmd(ParseMode, const char *);
 		void execute(CmdParser & parser);
 		virtual void executeHelper(CmdParser & parser) = 0;
 		virtual std::string logmsg() = 0;
@@ -71,7 +76,7 @@ namespace macmidish {
 		// return string to put into readline history
 	protected:
 		void sendMsg();
-		void parseMsg(const char *);
+		void parseMsg(ParseMode mode, const char *);
 		void asHex(const char *);
 		void asDecimal(const char *);
 		void asOctal(const char *);
@@ -115,7 +120,7 @@ namespace macmidish {
 	
 	class SendMsg : public Cmd {
 	public:
-		SendMsg(const char *);
+		SendMsg(ParseMode, const char *);
 		virtual void executeHelper(CmdParser & parser);
 		virtual std::string logmsg();
 	protected:
@@ -124,9 +129,10 @@ namespace macmidish {
 	
 	class SendMsgWithResponse : public SendMsg {
 	public:
-		SendMsgWithResponse(const char *);
+		SendMsgWithResponse(ParseMode, const char *);
 		virtual void executeHelper(CmdParser & parser);
 	protected:
+		SendMsgWithResponse():SendMsg(){}
 		void helperHelper();
 	private:
 		unsigned int timeout;
@@ -134,30 +140,32 @@ namespace macmidish {
 	
 	class SendMsgWithResponseToFile : public SendMsgWithResponse {
 	public:
-		SendMsgWithResponseToFile(const char *);
+		SendMsgWithResponseToFile(ParseMode, const char *);
 		virtual void executeHelper(CmdParser & parser);
-		virtual ~SendMsgWithResponseToFile();
 	private:
 		unsigned int timeout;
-		const char * filename;
+		std::string filename;
 	};
 	
 	class Quit : public Cmd {
 	public:
 		virtual void executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
 	};
 	
 	class PortChange : public Cmd {
 	public:
 		virtual void executeHelper(CmdParser & parser);
+		virtual std::string logmsg();
 	};
 	
 	class UnrecognizedCmd : public Cmd {
 	public:
 		UnrecognizedCmd(const char *);
+		virtual std::string logmsg();
 		virtual void executeHelper(CmdParser & parser);
 	private:
-		const char* cmd;
+		std::string cmd;
 	};
 }
 

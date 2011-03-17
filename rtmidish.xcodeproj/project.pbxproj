@@ -162,6 +162,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-D__MACOSX_CORE__";
+				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = rtmidish;
 				SDKROOT = macosx10.5;
 			};
