@@ -161,6 +161,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-D__MACOSX_CORE__";
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = rtmidish;
@@ -172,10 +173,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-D__MACOSX_CORE__";
+				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = rtmidish;
+				SDKROOT = macosx10.5;
 			};
 			name = Release;
 		};

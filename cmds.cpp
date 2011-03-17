@@ -27,8 +27,8 @@ namespace macmidish {
 	static RtMidiIn midiin;
 }
 
-//RtMidiOut midiout;
-//RtMidiIn midiin;
+RtMidiOut midiout;
+RtMidiIn midiin;
 
 static void eatwhitespace(const char ** msg) {
 	while (isspace(**msg)) {
