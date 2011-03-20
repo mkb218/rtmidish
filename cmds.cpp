@@ -49,12 +49,13 @@ void PortSelector::scanSelect(bool inPort, bool outPort) {
 	unsigned int inPorts = midiin.getPortCount();
 	unsigned int max = std::max(inPorts, outPorts);
 	std::cout << "Please select the MIDI port you want to communicate with:" << std::endl;
-	for (unsigned int i = 0; i <= max; ++i) {
+	for (unsigned int i = 0; i < max; ++i) {
 		std::cout << i;
 		std::cout << ".) ";
 		std::cout << (i<inPorts)?(midiin.getPortName(i)):("(output only)");
 		std::cout << "/" ;
 		std::cout << (i<outPorts)?(midiout.getPortName(i)):("(input only)");
+		std::cout << std::endl;
 	}
 	
 	char *resp = NULL;
