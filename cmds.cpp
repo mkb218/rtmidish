@@ -52,9 +52,9 @@ void PortSelector::scanSelect(bool inPort, bool outPort) {
 	for (unsigned int i = 0; i < max; ++i) {
 		std::cout << i;
 		std::cout << ".) ";
-		std::cout << (i<inPorts)?(midiin.getPortName(i)):("(output only)");
+		std::cout << ((i<inPorts)?(midiin.getPortName(i)):("(output only)"));
 		std::cout << "/" ;
-		std::cout << (i<outPorts)?(midiout.getPortName(i)):("(input only)");
+		std::cout << ((i<outPorts)?(midiout.getPortName(i)):("(input only)"));
 		std::cout << std::endl;
 	}
 	
@@ -62,7 +62,7 @@ void PortSelector::scanSelect(bool inPort, bool outPort) {
 	std::istringstream is;
 	if (inPort) {
 		do {
-			resp = readline("input>");
+			resp = readline("input > ");
 		} while (!resp || !(*resp));
 		
 		is.str(resp);
@@ -73,7 +73,7 @@ void PortSelector::scanSelect(bool inPort, bool outPort) {
 	if (outPort) {
 		resp = NULL;
 		do {
-			resp = readline("output>");
+			resp = readline("output >");
 		} while (!resp || !(*resp));
 		
 		is.str(resp);
@@ -158,7 +158,7 @@ void CmdParser::openlog() {
 char * CmdParser::issueprompt() {
 	char * resp = NULL;
 	do {
-		resp = readline(">");
+		resp = readline("> ");
 	} while (!resp || !(*resp));
 	return resp;
 }
@@ -320,7 +320,7 @@ void SetInputMode::parseCmd(const char * str) {
 
 void SetInputMode::executeHelper(CmdParser & parser) {
 	while (!_set) {
-		char * msg = readline("Mode? h - hex, i - ints, o - octal, a - ascii >");
+		char * msg = readline("Mode? h - hex, i - ints, o - octal, a - ascii > ");
 		parseCmd(msg);
 	}
 	parser.setParseMode(_parseMode);
