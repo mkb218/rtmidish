@@ -14,6 +14,7 @@
 		FC1BC0631321D88600BB3560 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0621321D88600BB3560 /* CoreFoundation.framework */; };
 		FC1BC0651321D88600BB3560 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1BC0641321D88600BB3560 /* CoreMIDI.framework */; };
 		FC1BC0711321DC7200BB3560 /* cmds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC1BC0701321DC7200BB3560 /* cmds.cpp */; };
+		FC7D294F134205C800A25026 /* proxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = FC7D294E134205C800A25026 /* proxy.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,6 +42,8 @@
 		FC1BC0641321D88600BB3560 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		FC1BC06F1321DC7200BB3560 /* cmds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmds.h; sourceTree = "<group>"; };
 		FC1BC0701321DC7200BB3560 /* cmds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cmds.cpp; sourceTree = "<group>"; };
+		FC7D294D134205C800A25026 /* proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = proxy.h; sourceTree = "<group>"; };
+		FC7D294E134205C800A25026 /* proxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = proxy.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +82,8 @@
 				08FB7796FE84155DC02AAC07 /* main.cpp */,
 				FC1BC06F1321DC7200BB3560 /* cmds.h */,
 				FC1BC0701321DC7200BB3560 /* cmds.cpp */,
+				FC7D294D134205C800A25026 /* proxy.h */,
+				FC7D294E134205C800A25026 /* proxy.mm */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -145,6 +150,7 @@
 				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
 				FC1BC04F1321D79F00BB3560 /* RtMidi.cpp in Sources */,
 				FC1BC0711321DC7200BB3560 /* cmds.cpp in Sources */,
+				FC7D294F134205C800A25026 /* proxy.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,7 +14,7 @@
 #include <vector>
 #include <deque>
 
-namespace macmidish {
+namespace rtmidish {
 	class PortSelector {
 	public:
 		PortSelector(int argc, char ** argv) : _argc(argc), _argv(argv), _ready(false) {}

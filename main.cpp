@@ -3,7 +3,7 @@
 #include <iostream>
 #include "cmds.h"
 
-using namespace macmidish;
+using namespace rtmidish;
 
 static void beginmsg() {
 	std::cout << "macmidish, inspired by midish" << std::endl;

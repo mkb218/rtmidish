@@ -3,7 +3,7 @@
  *  macmidish
  *
  *  Created by Matthew Kane on 3/4/11.
- *  Copyright 2011 __MyCompanyName__. All rights reserved.
+ *  Copyright 2011 Matthew Kane. All rights reserved.
  *
  */
 
@@ -19,16 +19,12 @@
 #include <readline/readline.h>
 #include <errno.h>
 #include <iomanip>
+#include "proxy.h"
 
-using namespace macmidish;
+using namespace rtmidish;
 
-namespace macmidish {
-	static RtMidiOut midiout;
-	static RtMidiIn midiin;
-}
-
-RtMidiOut midiout;
-RtMidiIn midiin;
+static MidiOutProxy midiout;
+static MidiInProxy midiin;
 
 static void eatwhitespace(const char ** msg) {
 	while (isspace(**msg)) {
@@ -240,6 +236,8 @@ Cmd * Cmd::newCmd(ParseMode mode, const char * msg) {
 				eatwhitespace(&msg);
 				return new Quit;
 			}
+		case EOF:
+			return new Quit;
 	}
 	return new UnrecognizedCmd(orig);
 }
